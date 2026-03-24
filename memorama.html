@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memorama de Sistemas Pro</title>
+    <style>
+        :root {
+            --primary: #6c5ce7;
+            --success: #00b894;
+            --bg: #f0f3f7;
+            --gradient: linear-gradient(135deg, #6c5ce7 0%, #8e44ad 100%);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        h1 { 
+            font-size: 2.2rem; 
+            margin-bottom: 10px;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: center;
+        }
+
+        .control-panel {
+            width: 100%;
+            max-width: 900px;
+            background: white;
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .progress-container {
+            background: #e2e8f0;
+            border-radius: 50px;
+            height: 14px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--success), #55efc4);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .stats-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            font-weight: 700;
+        }
+
+        .stat-val { color: var(--primary); font-size: 1.2rem; }
+
+        .btn-reset {
+            background: var(--primary);
+            color: white; border: none;
+            padding: 10px 25px; border-radius: 50px;
+            cursor: pointer; font-size: 1rem; transition: 0.3s;
+        }
+
+        .btn-reset:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(108, 92, 231, 0.3); }
+
+        /* TABLERO RESPONSIVO */
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 15px;
+            width: 100%;
+            max-width: 900px;
+            perspective: 1200px;
+        }
+
+        @media (max-width: 800px) { .game-board { grid-template-columns: repeat(4, 1fr); } }
+        @media (max-width: 500px) { 
+            .game-board { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+            .card { height: 130px !important; }
+        }
+
+        .card {
+            height: 160px;
+            cursor: pointer;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .card.flipped { transform: rotateY(180deg); }
+
+        .card-face {
+            position: absolute;
+            width: 100%; height: 100%;
+            border-radius: 15px;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+        }
+
+        .card-back {
+            background: var(--gradient);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.2);
+        }
+
+        .card-back::after {
+            content: "?";
+            font-size: 3.5rem;
+            font-weight: 700;
+        }
+
+        .card-front {
+            background: #fff;
+            transform: rotateY(180deg);
+            border: 2px solid #edf2f7;
+        }
+
+        .card-icon { font-size: 2.2rem; margin-bottom: 8px; }
+        .card-text { font-size: 0.85rem; line-height: 1.2; font-weight: 500; color: #2d3436; }
+
+        .card.matched .card-front { background: #e6fffa; border-color: var(--success); }
+
+        /* MODAL */
+        .overlay {
+            position: fixed; top:0; left:0; width:100%; height:100%;
+            background: rgba(15, 23, 42, 0.9); display: none;
+            align-items: center; justify-content: center; z-index: 100;
+            backdrop-filter: blur(8px);
+        }
+
+        .modal {
+            background: white; padding: 40px; border-radius: 25px;
+            text-align: center; max-width: 400px; width: 90%;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <h1>Memorama de Sistemas</h1>
+
+    <div class="control-panel">
+        <div class="progress-container"><div class="progress-bar" id="progressBar"></div></div>
+        <div class="stats-row">
+            <span>Parejas: <span id="matchesText" class="stat-val">0/10</span></span>
+            <span>Movimientos: <span id="movesText" class="stat-val">0</span></span>
+            <button class="btn-reset" onclick="initGame()">🔄 Reiniciar</button>
+        </div>
+    </div>
+
+    <div class="game-board" id="gameBoard"></div>
+
+    <div class="overlay" id="overlay">
+        <div class="modal">
+            <div style="font-size: 4rem;">🏆</div>
+            <h2 style="color: var(--success); margin: 15px 0;">¡Excelente, Carlos!</h2>
+            <p>Has completado el desafío de planificación.</p>
+            <p style="margin: 15px 0; font-weight: bold;">Total de movimientos: <span id="finalMoves">0</span></p>
+            <button class="btn-reset" onclick="closeModal()">Cerrar</button>
+        </div>
+    </div>
+
+    <script>
+        const pairsData = [
+            { a: "Planificación de Proyectos", b: "Etapa para organizar actividades, recursos y tiempos.", icon: "📅" },
+            { a: "Falta de Planificación", b: "Causa errores, retrasos o el fracaso del sistema.", icon: "⚠️" },
+            { a: "Objetivo del Proyecto", b: "Define qué problema se quiere resolver.", icon: "🎯" },
+            { a: "Importancia del Objetivo", b: "Proporciona dirección y evita desviaciones.", icon: "🧭" },
+            { a: "S (SMART) - Específico", b: "Debe ser claro, preciso y sin dudas.", icon: "🔍" },
+            { a: "M (SMART) - Medible", b: "Permite evaluar resultados con datos.", icon: "📊" },
+            { a: "T (SMART) - Temporal", b: "Define un tiempo o fecha límite de entrega.", icon: "⏱️" },
+            { a: "Objetivo General", b: "La meta global del proyecto.", icon: "🌐" },
+            { a: "Objetivos Específicos", b: "Pasos manejables de la planificación.", icon: "🧩" },
+            { a: "Relación Objetivo-Planificación", b: "Define presupuesto, herramientas y equipo.", icon: "🤝" }
+        ];
+
+        let flippedCards = [], matches = 0, moves = 0, lock = false;
+
+        function updateUI() {
+            document.getElementById('matchesText').textContent = `${matches}/10`;
+            document.getElementById('movesText').textContent = moves;
+            document.getElementById('progressBar').style.width = (matches * 10) + "%";
+        }
+
+        function initGame() {
+            const board = document.getElementById('gameBoard');
+            board.innerHTML = '';
+            flippedCards = []; matches = 0; moves = 0; lock = false;
+            updateUI();
+
+            let cards = [];
+            pairsData.forEach((p, i) => {
+                cards.push({ text: p.a, id: i, icon: p.icon });
+                cards.push({ text: p.b, id: i, icon: p.icon });
+            });
+            cards.sort(() => Math.random() - 0.5);
+
+            cards.forEach(data => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.dataset.id = data.id;
+                card.innerHTML = `
+                    <div class="card-face card-back"></div>
+                    <div class="card-face card-front">
+                        <span class="card-icon">${data.icon}</span>
+                        <span class="card-text">${data.text}</span>
+                    </div>
+                `;
+                card.onclick = () => {
+                    if (lock || card.classList.contains('flipped') || card.classList.contains('matched')) return;
+                    
+                    card.classList.add('flipped');
+                    flippedCards.push(card);
+
+                    if (flippedCards.length === 2) {
+                        moves++; // Incrementar inmediatamente al elegir la segunda carta
+                        updateUI(); // Forzar actualización visual del contador
+                        
+                        lock = true;
+                        if (flippedCards[0].dataset.id === flippedCards[1].dataset.id) {
+                            flippedCards.forEach(c => c.classList.add('matched'));
+                            matches++;
+                            flippedCards = [];
+                            lock = false;
+                            updateUI();
+                            if (matches === 10) {
+                                document.getElementById('finalMoves').textContent = moves;
+                                setTimeout(() => document.getElementById('overlay').style.display='flex', 600);
+                            }
+                        } else {
+                            setTimeout(() => {
+                                flippedCards.forEach(c => c.classList.remove('flipped'));
+                                flippedCards = [];
+                                lock = false;
+                            }, 1000);
+                        }
+                    }
+                };
+                board.appendChild(card);
+            });
+        }
+
+        function closeModal() { document.getElementById('overlay').style.display = 'none'; }
+
+        initGame();
+    </script>
+</body>
+</html>
