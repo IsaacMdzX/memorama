@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-select=none">
-    <title>Memorama Sistemas - Full View</title>
+    <title>Memorama Planificación - Textos Originales</title>
     <style>
         :root {
             --primary: #6c5ce7;
@@ -20,27 +20,28 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            height: 100vh; /* Altura total de la pantalla */
+            height: 100vh;
             width: 100vw;
-            overflow: hidden; /* Prohibido el scroll */
+            overflow: hidden; /* Evita el scroll */
             padding: 10px;
         }
 
         h1 { 
-            font-size: 1.4rem; 
+            font-size: 1.2rem; 
             background: var(--gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             margin-bottom: 5px;
+            text-align: center;
         }
 
-        /* --- PANEL DE CONTROL COMPACTO --- */
+        /* --- PANEL DE CONTROL --- */
         .control-panel {
             width: 100%;
-            max-width: 800px;
+            max-width: 900px;
             background: white;
-            padding: 10px 15px;
-            border-radius: 15px;
+            padding: 10px;
+            border-radius: 12px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.05);
             margin-bottom: 10px;
         }
@@ -48,7 +49,7 @@
         .progress-container {
             background: #e2e8f0;
             border-radius: 50px;
-            height: 8px;
+            height: 6px;
             margin-bottom: 8px;
             overflow: hidden;
         }
@@ -65,7 +66,7 @@
             justify-content: space-between;
             align-items: center;
             font-weight: 700;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
         }
 
         .stat-val { color: var(--primary); }
@@ -73,28 +74,28 @@
         .btn-reset {
             background: var(--primary);
             color: white; border: none;
-            padding: 6px 15px; border-radius: 50px;
-            cursor: pointer; font-size: 0.8rem; font-weight: 600;
+            padding: 5px 12px; border-radius: 50px;
+            cursor: pointer; font-size: 0.75rem;
         }
 
-        /* --- TABLERO QUE SE AJUSTA AL ALTO (NO SCROLL) --- */
+        /* --- TABLERO QUE SE AJUSTA AL ALTO --- */
         .game-board {
             display: grid;
-            flex-grow: 1; /* Ocupa el espacio restante */
+            flex-grow: 1;
             width: 100%;
-            max-width: 900px;
-            /* 4 columnas en móvil para que no sean tan largas hacia abajo */
+            max-width: 1000px;
+            /* 4 columnas en móvil para aprovechar verticalidad */
             grid-template-columns: repeat(4, 1fr); 
             grid-template-rows: repeat(5, 1fr);
-            gap: 8px;
+            gap: 6px;
             perspective: 1000px;
             padding-bottom: 10px;
         }
 
-        /* --- TARJETAS DINÁMICAS --- */
+        /* --- TARJETAS --- */
         .card {
             width: 100%;
-            height: 100%; /* Se estira según el grid */
+            height: 100%;
             cursor: pointer;
             position: relative;
             transform-style: preserve-3d;
@@ -106,26 +107,26 @@
         .card-face {
             position: absolute;
             width: 100%; height: 100%;
-            border-radius: 10px;
+            border-radius: 8px;
             backface-visibility: hidden;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             text-align: center;
-            padding: 5px;
+            padding: 4px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
 
         .card-back {
             background: var(--gradient);
             color: white;
-            border: 2px solid rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.2);
         }
 
         .card-back::after {
             content: "?";
-            font-size: 2rem;
+            font-size: 1.8rem;
             font-weight: 700;
         }
 
@@ -135,41 +136,48 @@
             border: 1px solid #edf2f7;
         }
 
-        .card-icon { font-size: 1.2rem; margin-bottom: 2px; }
+        .card-icon { font-size: 1rem; margin-bottom: 2px; }
+        
+        /* Ajuste de texto para que quepa todo */
         .card-text { 
-            font-size: 0.65rem; 
-            line-height: 1.1; 
+            font-size: 0.58rem; 
+            line-height: 1; 
             font-weight: 600; 
             color: #2d3436;
             word-wrap: break-word;
+            display: -webkit-box;
+            -webkit-line-clamp: 5; /* Limita líneas para que no rompa la card */
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
 
         .card.matched .card-front { background: #e6fffa; border-color: var(--success); }
 
         /* --- AJUSTES PARA PC --- */
         @media (min-width: 801px) {
-            h1 { font-size: 2.2rem; }
+            h1 { font-size: 2rem; margin-bottom: 15px; }
             .game-board { 
                 grid-template-columns: repeat(5, 1fr); 
                 grid-template-rows: repeat(4, 1fr);
-                gap: 15px;
+                gap: 12px;
             }
-            .card-icon { font-size: 2.5rem; }
-            .card-text { font-size: 0.95rem; }
-            .card-back::after { font-size: 4rem; }
-            .control-panel { padding: 20px; }
-            .stats-row { font-size: 1.2rem; }
+            .card-icon { font-size: 2.2rem; }
+            .card-text { font-size: 0.85rem; line-height: 1.2; }
+            .card-back::after { font-size: 3.5rem; }
+            .stats-row { font-size: 1.1rem; }
+            .btn-reset { padding: 10px 20px; font-size: 1rem; }
+            .card-face { padding: 10px; }
         }
 
         /* --- MODAL --- */
         .overlay {
             position: fixed; top:0; left:0; width:100%; height:100%;
-            background: rgba(0,0,0,0.85); display: none;
+            background: rgba(0,0,0,0.9); display: none;
             align-items: center; justify-content: center; z-index: 100;
         }
 
         .modal {
-            background: white; padding: 30px; border-radius: 20px;
+            background: white; padding: 25px; border-radius: 20px;
             text-align: center; width: 85%; max-width: 400px;
         }
     </style>
@@ -177,13 +185,13 @@
 </head>
 <body>
 
-    <h1>Planificación: El Juego</h1>
+    <h1>Planificación de Sistemas</h1>
 
     <div class="control-panel">
         <div class="progress-container"><div class="progress-bar" id="progressBar"></div></div>
         <div class="stats-row">
-            <span>Pares: <span id="matchesText" class="stat-val">0/10</span></span>
-            <span>Pasos: <span id="movesText" class="stat-val">0</span></span>
+            <span>Parejas: <span id="matchesText" class="stat-val">0/10</span></span>
+            <span>Movimientos: <span id="movesText" class="stat-val">0</span></span>
             <button class="btn-reset" onclick="initGame()">Reiniciar</button>
         </div>
     </div>
@@ -193,25 +201,26 @@
     <div class="overlay" id="overlay">
         <div class="modal">
             <div style="font-size: 3rem;">🏆</div>
-            <h2 style="color: var(--success); margin: 10px 0;">¡Lo lograste!</h2>
-            <p>Completaste el reto de sistemas.</p>
-            <p style="font-weight: bold; margin: 10px 0;">Movimientos: <span id="finalMoves">0</span></p>
+            <h2 style="color: var(--success); margin: 10px 0;">¡Excelente, Carlos!</h2>
+            <p>Has dominado el tema de planificación.</p>
+            <p style="font-weight: bold; margin: 10px 0;">Pasos totales: <span id="finalMoves">0</span></p>
             <button class="btn-reset" onclick="closeModal()">Cerrar</button>
         </div>
     </div>
 
     <script>
+        // RECUPERANDO TUS TEXTOS ORIGINALES
         const pairsData = [
-            { a: "Planificación", b: "Organizar actividades y recursos.", icon: "📅" },
-            { a: "Sin Planear", b: "Errores, retrasos o fracaso total.", icon: "⚠️" },
-            { a: "Objetivo", b: "Meta principal del sistema.", icon: "🎯" },
-            { a: "Importancia", b: "Da dirección y evita desviaciones.", icon: "🧭" },
-            { a: "Específico", b: "Objetivo claro, preciso y sin dudas.", icon: "🔍" },
-            { a: "Medible", b: "Evalúa cumplimiento con datos.", icon: "📊" },
-            { a: "Temporal", b: "Define un tiempo límite de entrega.", icon: "⏱️" },
-            { a: "Objetivo General", b: "La meta global del proyecto.", icon: "🌐" },
-            { a: "O. Específicos", b: "Pasos manejables del proyecto.", icon: "🧩" },
-            { a: "Recursos", b: "Definidos por la planificación.", icon: "🤝" }
+            { a: "Planificación de Proyectos", b: "Etapa para organizar actividades, recursos y tiempos para lograr un objetivo.", icon: "📅" },
+            { a: "Consecuencia de no planificar", b: "El proyecto puede presentar errores, retrasos o incluso el fracaso total.", icon: "⚠️" },
+            { a: "Objetivo del Proyecto", b: "Meta principal que define qué problema se quiere resolver o qué necesidad cubrir.", icon: "🎯" },
+            { a: "Importancia del Objetivo", b: "Proporciona dirección, enfoque y evita desviaciones del propósito original.", icon: "🧭" },
+            { a: "S (SMART) - Específico", b: "El objetivo debe ser claro, preciso y no dejar lugar a dudas.", icon: "🔍" },
+            { a: "M (SMART) - Medible", b: "Característica que permite evaluar si el objetivo se cumplió mediante datos.", icon: "📊" },
+            { a: "T (SMART) - Temporal", b: "Establece un tiempo definido o fecha límite para la realización del proyecto.", icon: "⏱️" },
+            { a: "Objetivo General", b: "Representa la meta global, como 'Automatizar los procesos de una empresa'.", icon: "🌐" },
+            { a: "Objetivos Específicos", b: "Pasos pequeños y manejables como 'Diseñar la base de datos' o 'Realizar pruebas'.", icon: "🧩" },
+            { a: "Relación Objetivo-Planificación", b: "El objetivo define el tiempo, los recursos humanos y las herramientas a utilizar.", icon: "🤝" }
         ];
 
         let flippedCards = [], matches = 0, moves = 0, lock = false;
@@ -251,7 +260,9 @@
                     card.classList.add('flipped');
                     flippedCards.push(card);
                     if (flippedCards.length === 2) {
-                        moves++; updateUI(); lock = true;
+                        moves++;
+                        updateUI();
+                        lock = true;
                         if (flippedCards[0].dataset.id === flippedCards[1].dataset.id) {
                             flippedCards.forEach(c => c.classList.add('matched'));
                             matches++; flippedCards = []; lock = false;
@@ -264,7 +275,7 @@
                             setTimeout(() => {
                                 flippedCards.forEach(c => c.classList.remove('flipped'));
                                 flippedCards = []; lock = false;
-                            }, 800);
+                            }, 1000);
                         }
                     }
                 };
